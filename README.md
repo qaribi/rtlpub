@@ -1,0 +1,108 @@
+# rtlpub
+
+Offline, read-only publishing preflight for Persian and right-to-left content.
+Check UTF-8 text, XML-based XHTML and unencrypted EPUB 3 publications. Findings
+help authors inspect Unicode, language/direction, basic accessibility and broken
+publication references before handing a book to a reading system.
+
+rtlpub complements [EPUBCheck](https://github.com/w3c/epubcheck) and
+[Ace by DAISY](https://github.com/daisy/ace). It is a small set of checks, not an
+EPUB conformance certificate, accessibility certification or linguistic proofreader.
+This is a new project; external adoption and a long-term maintenance record are
+not established.
+
+## Install and run
+
+Python 3.12 or newer is required. There are no third-party runtime dependencies.
+From a checkout:
+
+~~~sh
+python -m venv .venv
+# Activate .venv using your operating system's usual command.
+python -m pip install .
+rtlpub check examples/persian.xhtml
+rtlpub check examples/persian.xhtml --format json
+rtlpub check ./samples --format json
+rtlpub check book.epub --fail-on warning
+~~~
+
+The examples are synthetic and licensed with the project. Generate an EPUB:
+
+~~~sh
+python examples/make_epub.py /tmp/rtlpub-example.epub
+rtlpub check /tmp/rtlpub-example.epub --format json
+~~~
+
+On Windows, use a writable temporary path such as $env:TEMP/rtlpub-example.epub.
+The checker never writes to the input. The example generator is a separate,
+explicitly invoked command that creates a new synthetic file and refuses overwrite.
+
+## What it checks
+
+- Arabic yeh/kaf in Persian-language text, suspicious ZWNJ boundaries,
+  explicit bidi controls, embedded BOMs and non-NFC text. These are advisory:
+  deliberate editorial choices can be valid.
+- Inherited XHTML lang/xml:lang and direction declarations. Explicit LTR
+  spans, dir=auto, bdi, Arabic quotations and empty decorative alt are
+  allowed. It does not infer direction from CSS.
+- Missing alt, heading-level jumps, duplicate IDs and invalid dir values.
+- Substantial Persian text under effective LTR direction produces an advisory
+  to review author intent; short mixed snippets are not flagged. bdi defaults to auto.
+- EPUB 3 required title/language/identifier metadata, manifest resources,
+  spine references, navigation declaration and internal XHTML links/fragments.
+  External URLs are never fetched.
+
+Plain text defaults to Persian. Use --text-language ar for Arabic or und to
+disable language-specific letter hints. XHTML declarations take precedence.
+XML locations are element paths; text locations use one-based line and code-point
+column numbers. Reports contain rule explanations, relative paths and locations,
+never input text excerpts. File/member names can themselves contain private
+information; review a report before sharing it.
+
+## CI and exit codes
+
+~~~sh
+rtlpub check book.epub --format json --fail-on warning
+~~~
+
+Default threshold is error. --fail-on warning also stops on warnings;
+--fail-on info stops on any finding. Exit 0 means no finding reached the
+chosen threshold; 1 means findings reached it; 2 means invalid, unsupported,
+unreadable or incompletely checked input. Warnings can still appear with exit 0.
+JSON uses schema 1.0, deterministic ordering, counts and an explicit status.
+See [the CLI contract](docs/CLI.md) and [rules](docs/RULES.md).
+
+## Boundaries and input safety
+
+EPUB 2, encrypted ZIPs, DRM and font-obfuscated EPUBs are unsupported. Ordinary
+HTML without XHTML namespaces is unsupported. This version does not check full
+navigation semantics, CSS/SVG references, all media types, language-tag syntax
+or alternative fallback chains; internal fragment checking is limited to XHTML.
+It does not change letters, digits, vowels, Arabic quotes, IDs or anchors.
+
+Fixed budgets bound reads: 1,000 entries, 4 MiB per expanded member/text/XML file,
+32 MiB compressed EPUB, 64 MiB accumulated raw and expanded data, ZIP ratio 100:1,
+XML depth 128, 100,000 XML elements and 10,000 findings. All archive members,
+including binary assets, consume the budget. Symlinks/junctions, unsafe ZIP paths,
+duplicate members, DTDs and XML entity declarations are rejected. ZIPs are read
+in memory and never extracted. See [security scope](SECURITY.md).
+
+## Development
+
+~~~sh
+python -m pip install -e .
+python -m unittest discover -v
+ruff check src tests examples
+ruff format --check src tests examples
+pyright
+python -m build
+~~~
+
+CI pins validator versions and Actions commit SHAs; it uses hosted runners,
+read-only permissions and no secrets or paid AI calls. Installation/build tools
+are development dependencies, not runtime components.
+
+Read [contributing](CONTRIBUTING.md), [roadmap](ROADMAP.md), and
+[planned Codex maintenance](docs/CODEX_MAINTENANCE.md).
+Maintainer: [Ali Mohamadpour](https://github.com/qaribi).
+License: [MIT](LICENSE). [فارسی](README.fa.md)

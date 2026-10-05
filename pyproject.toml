@@ -1,0 +1,40 @@
+[build-system]
+requires = ["setuptools==84.0.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "rtlpub"
+version = "0.1.0"
+description = "Offline Persian and RTL text, XHTML and EPUB publishing preflight"
+readme = "README.md"
+requires-python = ">=3.12"
+license = "MIT"
+license-files = ["LICENSE"]
+authors = [{name = "Ali Mohamadpour"}]
+dependencies = []
+classifiers = ["Programming Language :: Python :: 3", "Topic :: Text Processing :: Markup :: XML"]
+
+[project.scripts]
+rtlpub = "rtlpub.cli:main"
+
+[project.urls]
+Repository = "https://github.com/qaribi/rtlpub"
+Issues = "https://github.com/qaribi/rtlpub/issues"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+rtlpub = ["py.typed"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]
+
+[tool.pyright]
+include = ["src"]
+typeCheckingMode = "strict"
+pythonVersion = "3.12"
