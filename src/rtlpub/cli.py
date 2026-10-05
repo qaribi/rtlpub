@@ -42,7 +42,7 @@ def main(argv: Sequence[str] | None = None) -> int:
                     where += f":{finding.location}"
                 print(
                     f"{finding.severity.upper()} {finding.rule} "
-                    f"{json.dumps(where, ensure_ascii=False)}: {finding.message}"
+                    f"{json.dumps(where, ensure_ascii=True)}: {finding.message}"
                 )
             print(
                 f"Checked {report.checked_files} file(s); {len(report.findings)} finding(s); "

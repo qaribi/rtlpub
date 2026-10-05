@@ -300,6 +300,18 @@ class PreflightTests(unittest.TestCase):
             self.assertEqual(runs[0], runs[1])
             self.assertEqual(json.loads(runs[0])["schema_version"], "1.0")
 
+    def test_cli_human_path_escapes_bidi_controls(self) -> None:
+        with tempfile.TemporaryDirectory() as folder:
+            path = Path(folder) / "sample\u202e\u2066.txt"
+            path.write_text("ي", encoding="utf-8")
+            output = io.StringIO()
+            with contextlib.redirect_stdout(output):
+                code = main(["check", str(path)])
+            self.assertEqual(code, 0)
+            self.assertNotIn("\u202e", output.getvalue())
+            self.assertNotIn("\u2066", output.getvalue())
+            self.assertIn("\\u202e\\u2066", output.getvalue())
+
     def test_cli_invalid_input_no_traceback_or_absolute_path(self) -> None:
         output = io.StringIO()
         with contextlib.redirect_stdout(output):
