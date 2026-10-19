@@ -45,6 +45,8 @@ explicitly invoked command that creates a new synthetic file and refuses overwri
 - Inherited XHTML lang/xml:lang and direction declarations. Explicit LTR
   spans, dir=auto, bdi, Arabic quotations and empty decorative alt are
   allowed. It does not infer direction from CSS.
+- Structural BCP 47 language tags in every XHTML lang/xml:lang declaration and
+  every EPUB dc:language value, including complex and grandfathered tags.
 - Missing alt, heading-level jumps, duplicate IDs and invalid dir values.
 - Substantial Persian text under effective LTR direction produces an advisory
   to review author intent; short mixed snippets are not flagged. bdi defaults to auto.
@@ -76,8 +78,11 @@ See [the CLI contract](docs/CLI.md) and [rules](docs/RULES.md).
 
 EPUB 2, encrypted ZIPs, DRM and font-obfuscated EPUBs are unsupported. Ordinary
 HTML without XHTML namespaces is unsupported. This version does not check full
-navigation semantics, CSS/SVG references, all media types, language-tag syntax
+navigation semantics, CSS/SVG references, all media types
 or alternative fallback chains; internal fragment checking is limited to XHTML.
+Language checks validate structure, not IANA registration, preferred spelling,
+subtag prefixes, extension semantics or agreement with the actual text. See
+[language-tag rules and limitations](docs/RULES.md#language-tags).
 It does not change letters, digits, vowels, Arabic quotes, IDs or anchors.
 
 Fixed budgets bound reads: 1,000 entries, 4 MiB per expanded member/text/XML file,

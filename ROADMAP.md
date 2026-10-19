@@ -3,7 +3,8 @@
 Priorities are proposals, not release commitments:
 
 1. Collect permitted synthetic reproductions and publisher feedback.
-2. Improve false-positive documentation and language-tag handling.
+2. Improve false-positive documentation; consider registry-aware language-tag
+   checks separately from the implemented offline structural checks.
 3. Consider bounded CSS/SVG asset-reference checks and navigation semantics.
 4. Expand interoperability fixtures alongside EPUBCheck and Ace.
 
