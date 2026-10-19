@@ -4,6 +4,7 @@ import unicodedata
 from dataclasses import dataclass
 from xml.etree.ElementTree import Element
 
+from .language import is_well_formed_language_tag
 from .models import Finding, InputError, Limits, Report
 from .safeio import parse_xml
 from .text import PERSIAN_LANGS, check_text
@@ -64,6 +65,19 @@ def check_xhtml(
                     location,
                 )
             )
+        for attribute, name in (("lang", "lang"), (XML_LANG, "xml:lang")):
+            value = element.get(attribute)
+            # Empty declarations reset inherited language to unknown (XML/HTML).
+            if value and not is_well_formed_language_tag(value):
+                report.add(
+                    Finding(
+                        "XHTML_LANGUAGE_TAG",
+                        "error",
+                        path,
+                        "Language declaration is not a structurally well-formed BCP 47 tag.",
+                        f"{location}/@{name}",
+                    )
+                )
         if XML_LANG in element.attrib and "lang" in element.attrib:
             if element.attrib[XML_LANG].lower() != element.attrib["lang"].lower():
                 report.add(

@@ -5,6 +5,7 @@ import re
 from urllib.parse import unquote, urlsplit
 from xml.etree.ElementTree import Element
 
+from .language import is_well_formed_language_tag
 from .models import Finding, InputError, Limits, Report
 from .safeio import parse_xml, read_zip
 from .xhtml import Document, check_xhtml
@@ -81,6 +82,13 @@ def check_epub(data: bytes, path: str, report: Report, limits: Limits) -> int:
             )
         if key == "language" and values:
             language = (values[0].text or "").strip()
+            for index, element in enumerate(values, 1):
+                if not is_well_formed_language_tag((element.text or "").strip()):
+                    finding(
+                        "EPUB_LANGUAGE_TAG",
+                        "Language metadata is not a structurally well-formed BCP 47 tag.",
+                        f"/package/metadata/dc:language[{index}]",
+                    )
     unique_id = package.get("unique-identifier")
     if (
         not unique_id
